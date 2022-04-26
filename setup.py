@@ -204,12 +204,17 @@ def get_index_url_from_pip(config_name):
 def normalize_url(url):
     parse_result = urlparse(url)
     path = parse_result.path
+    # fix issue#2012 lead to exception while url is bytes on windows
+    if type(path) == type(bytes()):
+        path = path.decode()
     if not path.endswith("/"):
         path += "/"
-    return urlunparse((
+    path = path.encode()
+    result = urlunparse((
         parse_result.scheme, parse_result.netloc, path,
         parse_result.params, parse_result.query, parse_result.fragment,
     ))
+    return result.decode() # shoud finally return str like url
 
 
 class PEP503PageParser(HTMLParser):
